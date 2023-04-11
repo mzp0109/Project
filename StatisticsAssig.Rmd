@@ -1,0 +1,175 @@
+---
+title: "Statistics"
+author: "Maria Leticia"
+date: "2023-04-04"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+### Question 1.
+
+My project is to study the plant variability impact on soybean yield in Alabama.
+
+The objectives of my project are: 
+
+1.	Asses the soybean canopy plant-to-plant variability in the field.
+2.	Evaluate how this variability among plants in the same sowing row can impact soybean grain yield. 
+
+For that, we conducted a statewide assessment of plant in the field. The data was collected from commercial soybean fields around Alabama. For each field, 10 consecutive plants were collected in 3 distinct points within the field. The final data consists of the mean value for the 10 plants. To measure the variability among plants, I am using the standard deviation within the 10 plants collected per point.
+The data I am using for my project consists of plant growth parameters such as:
+
+-	Plant height (cm)
+-	Number of pods per plant
+-	Number of lateral branches per plant
+And grain yield production expressed as:
+-	Seed weight per plant (g)
+
+My hypothesis is that non-uniform canopy among consecutive plants in the same sowing row can cause yield loss. While uniform plants can avoid yield losses.
+
+To test my hypothesis, I will use the following statistical methods:
+
+-	Descriptive Statistic (Mean, Minimum, Maximum, Median)
+-	Pearson’s Correlation Test
+-	Linear Model
+
+### Question 2.
+
+```{r}
+library (ggplot2)
+library (lme4)
+library(emmeans)
+library(multcomp)
+library (Hmisc)
+library("PerformanceAnalytics")
+
+soy <- read.csv("Soy153new.csv")
+
+soymean <- soy[, c(3,5,7,9)]
+soysd <- soy [, c(4,6,8,10)]
+
+##Basic Stat
+summary(soymean)
+
+summary(soysd)
+
+## Correlation
+cormean <- cor(soymean)
+corsd <- cor (soysd)
+
+##Mean
+rcormean <- rcorr(as.matrix(soymean))
+rcormean$P
+rcormean$r
+
+chart.Correlation(soymean, histogram=TRUE, pch=19)
+
+##SD
+rcorsd <- rcorr(as.matrix(soysd))
+rcorsd$P
+rcorsd$r
+
+chart.Correlation(soysd, histogram=TRUE, pch=19)
+
+##Linear Models for the Means
+lm1 <- lm(Pod_mean~Height_mean, data = soy)
+summary(lm1)
+anova (lm1)
+ggplot(lm1, aes(y = Pod_mean, x = Height_mean)) +
+  ylab("Total Pods per Plant") +
+  xlab ("Plant Height (cm)") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+
+lm2 <- lm(SW_mean~Height_mean, data = soy)
+summary(lm2)
+anova (lm2)
+ggplot(lm2, aes(y = SW_mean, x = Height_mean)) +
+  ylab("Seed Weight (g/plant)") +
+  xlab ("Plant Height (cm)") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+
+lm3 <- lm(Pod_mean~Branch_mean, data = soy)
+summary(lm3)
+anova (lm3)
+ggplot(lm3, aes(y = Pod_mean, x = Branch_mean)) +
+  ylab("Total Pods per Plant") +
+  xlab ("Lateral Branches per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+
+lm4 <- lm(SW_mean~Pod_mean, data = soy)
+summary(lm4)
+anova (lm4)
+ggplot(lm4, aes(y = SW_mean, x = Pod_mean)) +
+  ylab("Seed Weight (g/plant)") +
+  xlab ("Total Pods per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() 
+
+lm5 <- lm(SW_mean~Branch_mean, data = soy)
+summary(lm5)
+anova (lm5)
+ggplot(lm5, aes(y = SW_mean, x = Branch_mean)) +
+  ylab("Seed Weight (g/plant)") +
+  xlab ("Lateral Branches per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() 
+
+##Linear Models for the standard deviations
+lm6 <- lm(Pod_sd~Branch_sd, data = soy)
+summary(lm6)
+anova (lm6)
+ggplot(lm6, aes(y = Pod_sd, x = Branch_sd)) +
+  ylab("Standard Deviation for Total Pods per Plant") +
+  xlab ("Standard Deviation for Lateral Branches per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() 
+
+lm7 <- lm(Pod_sd~SW_sd, data = soy)
+summary(lm7)
+anova (lm7)
+ggplot(lm7, aes(y = SW_sd, x = Pod_sd)) +
+  ylab("Standard Deviation for Seed Weight (g/plant)") +
+  xlab ("Standard Deviation fo Total Pods per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() 
+
+lm8 <- lm(Branch_sd~SW_sd, data = soy)
+summary(lm8)
+anova (lm8)
+ggplot(lm8, aes(y = SW_sd, x = Branch_sd)) +
+  ylab("Standard Deviation for Seed Weight (g/plant)") +
+  xlab ("Standard Deviation for Lateral Branches per Plant") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+```
+
+### Question 3.
+
+For the descriptive statistics:
+In Alabama fields, we had an average of soybean plants with 72.6 cm height, 43 pods per plant, 2 lateral branches, and seed weight per plant of 12.1 grams.
+
+In Alabama fields, we can see a variability in soybean height ranging from 1.9 to 16.2 cm, with an average of 6 cm between plants. Number of pods per plants can variate from 3 to 47.7, with an average of varibility of 16.76 pods per plant. Branches variates from 0 to 3 between plants, with an average of 1 branch variability. Finally, the seed weight between plants can range from 0.6 to 23.3 grams with an average of variability 4.7 grams.
+
+For the correlations:
+The plant height is significantly correlated to the number of pods per plant and seed weight per plant. Taller plants results in more pods and more yielding.
+Number of pods per plant is significantly correlated to the number of lateral branches and seed weight per plant. More lateral branches results in more pods and yielding per plant.
+Also, number of lateral branches has a significant effect on the seed weight per plant.
+
+Higher the variability in number of lateral branches and pods between plants, higher the variability in yielding per plant. Therefore, lateral branches and number of pods play a significant role in uniformity of the plant canopy and therefore they are the factors that could most interfere in grain yield.
+
+
+
+
+
